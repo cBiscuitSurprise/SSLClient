@@ -38,10 +38,14 @@ SSLClient::SSLClient(   Client& client,
     setTimeout(30*1000);
     // zero the iobuf just in case it's still garbage
     memset(m_iobuf, 0, sizeof m_iobuf);
+
     // initlalize the various bearssl libraries so they're ready to go when we connect
+#ifdef SSLCLIENT_USEFULLX509
+    br_ssl_client_init_full(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
+#else
     br_client_init_TLS12_only(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
-    // comment the above line and uncomment the line below if you're having trouble connecting over SSL
-    // br_ssl_client_init_full(&m_sslctx, &m_x509ctx, m_trust_anchors, m_trust_anchors_num);
+#endif
+
     // check if the buffer size is half or full duplex
     constexpr auto duplex = sizeof m_iobuf <= BR_SSL_BUFSIZE_MONO ? 0 : 1;
     br_ssl_engine_set_buffer(&m_sslctx.eng, m_iobuf, sizeof m_iobuf, duplex);

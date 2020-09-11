@@ -969,6 +969,7 @@ OID: basicConstraints      2.5.29.19
 OID: keyUsage              2.5.29.15
 OID: subjectAltName        2.5.29.17
 OID: certificatePolicies   2.5.29.32
+OID: extKeyUsage		   2.5.29.37
 
 \ Policy qualifier "pointer to CPS"
 OID: id-qt-cps             1.3.6.1.5.5.7.2.1
@@ -1356,6 +1357,9 @@ OID: subjectInfoAccess             1.3.6.1.5.5.7.1.11
 
 				\ Extensions which are always ignored,
 				\ even if critical.
+				extKeyUsage     eqOID uf
+					skip-remaining
+				enduf
 				authorityKeyIdentifier     eqOID uf
 					skip-remaining
 				enduf
