@@ -369,6 +369,14 @@ public:
      */
     unsigned int getTimeout() const { return m_timeout; }
 
+    /** 
+     * @brief Initialize the underlying trust anchors.
+     * @param trust_anchors Trust anchors used in the verification 
+     * of the SSL server certificate. Check out TrustAnchors.md for more info.
+     * @param trust_anchors_num The number of objects in the trust_anchors array.
+     */
+    void initializeTAs(const br_x509_trust_anchor *trust_anchors, const size_t trust_anchors_num);
+
 private:
     /** @brief Returns an instance of m_client that is polymorphic and can be used by SSLClientImpl */
     Client& get_arduino_client() { return m_client; }
@@ -440,7 +448,10 @@ private:
     // or shrink to below BR_SSL_BUFSIZE_MONO, and bearSSL will adapt automatically
     // simply edit this value to change the buffer size to the desired value
     // additionally, we need to correct buffer size based off of how many sessions we decide to cache
-    // since SSL takes so much memory if we don't it will cause the stack and heap to collide 
+    // since SSL takes so much memory if we don't it will cause the stack and heap to collide
+    #ifndef SSLCLIENT_IOBUFFSIZE
+    #define SSLCLIENT_IOBUFFSIZE 2048
+    #endif
     /**
      * @brief The internal buffer to use with BearSSL.
      * This buffer controls how much data BearSSL can encrypt/decrypt at a given time. It can be expanded
@@ -448,7 +459,8 @@ private:
      * As a rule of thumb SSLClient will fail if it does not have at least 8000 bytes when starting a
      * connection.
      */
-    unsigned char m_iobuf[2048];
+    unsigned char m_iobuf[SSLCLIENT_IOBUFFSIZE];
+    // unsigned char m_iobuf[2048];
     // store the index of where we are writing in the buffer
     // so we can send our records all at once to prevent
     // weird timing issues

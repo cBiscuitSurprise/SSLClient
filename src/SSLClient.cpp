@@ -36,19 +36,7 @@ SSLClient::SSLClient(   Client& client,
     , m_write_idx(0) {
 
     setTimeout(30*1000);
-    // zero the iobuf just in case it's still garbage
-    memset(m_iobuf, 0, sizeof m_iobuf);
-
-    // initlalize the various bearssl libraries so they're ready to go when we connect
-#ifdef SSLCLIENT_USEFULLX509
-    br_ssl_client_init_full(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
-#else
-    br_client_init_TLS12_only(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
-#endif
-
-    // check if the buffer size is half or full duplex
-    constexpr auto duplex = sizeof m_iobuf <= BR_SSL_BUFSIZE_MONO ? 0 : 1;
-    br_ssl_engine_set_buffer(&m_sslctx.eng, m_iobuf, sizeof m_iobuf, duplex);
+    initializeTAs(trust_anchors, trust_anchors_num);
 }
 
 /* see SSLClient.h*/
@@ -295,6 +283,23 @@ void SSLClient::setMutualAuthParams(const SSLClientParameters& params) {
                                         params.getRSAKey(),
                                         &br_rsa_i15_pkcs1_sign);
     }
+}
+
+/* see SSLClient.h */
+void SSLClient::initializeTAs(const br_x509_trust_anchor *trust_anchors, const size_t trust_anchors_num) {
+    // zero the iobuf just in case it's still garbage
+    memset(m_iobuf, 0, sizeof m_iobuf);
+
+    // initlalize the various bearssl libraries so they're ready to go when we connect
+#ifdef SSLCLIENT_USEFULLX509
+    br_ssl_client_init_full(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
+#else
+    br_client_init_TLS12_only(&m_sslctx, &m_x509ctx, trust_anchors, trust_anchors_num);
+#endif
+
+    // check if the buffer size is half or full duplex
+    constexpr auto duplex = sizeof m_iobuf <= BR_SSL_BUFSIZE_MONO ? 0 : 1;
+    br_ssl_engine_set_buffer(&m_sslctx.eng, m_iobuf, sizeof m_iobuf, duplex);
 }
 
 bool SSLClient::m_soft_connected(const char* func_name) {
