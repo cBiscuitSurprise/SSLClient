@@ -376,6 +376,16 @@ public:
      * @param trust_anchors_num The number of objects in the trust_anchors array.
      */
     void initializeTAs(const br_x509_trust_anchor *trust_anchors, const size_t trust_anchors_num);
+    
+    /** 
+     * @brief Initialize the underlying trust anchors.
+     * @param trust_anchors Trust anchors used in the verification 
+     * of the SSL server certificate. Check out TrustAnchors.md for more info.
+     * @param trust_anchors_num The number of objects in the trust_anchors array.
+     */
+    void updateTAs(const br_x509_trust_anchor *trust_anchors, const size_t trust_anchors_num);
+
+    const unsigned int getSslError();
 
 private:
     /** @brief Returns an instance of m_client that is polymorphic and can be used by SSLClientImpl */

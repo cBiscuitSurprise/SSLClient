@@ -302,6 +302,17 @@ void SSLClient::initializeTAs(const br_x509_trust_anchor *trust_anchors, const s
     br_ssl_engine_set_buffer(&m_sslctx.eng, m_iobuf, sizeof m_iobuf, duplex);
 }
 
+
+/* see SSLClient.h */
+void SSLClient::updateTAs(const br_x509_trust_anchor *trust_anchors, const size_t trust_anchors_num) {
+    m_x509ctx.trust_anchors = trust_anchors;
+    m_x509ctx.trust_anchors_num = trust_anchors_num;
+}
+
+const unsigned int SSLClient::getSslError() {
+    return br_ssl_engine_last_error(&m_sslctx.eng);
+}
+
 bool SSLClient::m_soft_connected(const char* func_name) {
     // check if the socket is still open and such
     if (getWriteError()) {
