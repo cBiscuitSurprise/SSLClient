@@ -60,6 +60,20 @@ int SSLClient::connect(IPAddress ip, uint16_t port) {
     return m_start_ssl(nullptr);
 }
 
+unsigned long SSLClient::getTime()
+{
+    if (_on_get_time) {
+        return _on_get_time();
+    }
+
+    return UNIX_TIMESTAMP_UTC;
+}
+
+void SSLClient::onGetTime(unsigned long(*callback)(void))
+{
+    _on_get_time = callback;
+}
+
 /* see SSLClient.h*/
 int SSLClient::connect(const char *host, uint16_t port) {
     const char* func_name = __func__;
@@ -76,11 +90,12 @@ int SSLClient::connect(const char *host, uint16_t port) {
         return 0;
     }
     m_info("Base client connected!", func_name);
-    
+    // start ssl!
+
     IPAddress host_as_ip = {};
     if (host_as_ip.fromString(host))
     {
-        // looks like IP as string
+        // "looks like IP as string"
         return m_start_ssl(nullptr);
     }
     else
@@ -341,6 +356,14 @@ bool SSLClient::m_soft_connected(const char* func_name) {
 
 /* see SSLClient.h */
 int SSLClient::m_start_ssl(const char* host, SSLSession* ssl_ses) {
+    uint32_t now = getTime();
+    Serial.print("[ssl][info] time: ");
+    Serial.println(now);
+    uint32_t days = now / 86400 + 719528;
+    uint32_t sec = now % 86400;
+
+    br_x509_minimal_set_time(&m_x509ctx, days, sec);
+
     const char* func_name = __func__;
     // clear the write error
     setWriteError(SSL_OK);

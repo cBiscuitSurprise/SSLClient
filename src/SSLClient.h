@@ -22,6 +22,7 @@
 #include "SSLSession.h"
 #include "SSLClientParameters.h"
 #include <vector>
+#include "time_macros.h"
 
 #ifndef SSLClient_H_
 #define SSLClient_H_
@@ -387,7 +388,11 @@ public:
 
     const unsigned int getSslError();
 
+    unsigned long getTime();
+    void onGetTime(unsigned long(*callback)(void));
+
 private:
+    unsigned long (*_on_get_time)();
     /** @brief Returns an instance of m_client that is polymorphic and can be used by SSLClientImpl */
     Client& get_arduino_client() { return m_client; }
     const Client& get_arduino_client() const { return m_client; }
