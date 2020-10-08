@@ -76,8 +76,17 @@ int SSLClient::connect(const char *host, uint16_t port) {
         return 0;
     }
     m_info("Base client connected!", func_name);
-    // start ssl!
-    return m_start_ssl(host, getSession(host));
+    
+    IPAddress host_as_ip = {};
+    if (host_as_ip.fromString(host))
+    {
+        // looks like IP as string
+        return m_start_ssl(nullptr);
+    }
+    else
+    {
+        return m_start_ssl(host, getSession(host));
+    }
 }
 
 /* see SSLClient.h*/
