@@ -357,8 +357,6 @@ bool SSLClient::m_soft_connected(const char* func_name) {
 /* see SSLClient.h */
 int SSLClient::m_start_ssl(const char* host, SSLSession* ssl_ses) {
     uint32_t now = getTime();
-    Serial.print("[ssl][info] time: ");
-    Serial.println(now);
     uint32_t days = now / 86400 + 719528;
     uint32_t sec = now % 86400;
 
@@ -392,6 +390,7 @@ int SSLClient::m_start_ssl(const char* host, SSLSession* ssl_ses) {
     // a little more structural sense to put it here
     if (m_run_until(BR_SSL_SENDAPP) < 0) {
 		m_error("Failed to initlalize the SSL layer", func_name);
+        get_arduino_client().stop();
         m_print_br_error(br_ssl_engine_last_error(&m_sslctx.eng), SSL_ERROR);
         return 0;
 	}
